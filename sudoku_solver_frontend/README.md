@@ -1,4 +1,5 @@
-# sudoku_solver_site
+# sudoku_solver_frontend
+The frontend for the sudoku solver. This includes a vue project.
 
 ## Project setup
 ```
