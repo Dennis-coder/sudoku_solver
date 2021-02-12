@@ -1,10 +1,14 @@
 import math
-import datetime
+import time
 from sudoku import Sudoku
 
+start = time.perf_counter()
 sudokuStr = open("sudoku.txt").read()
 sudoku = Sudoku(sudokuStr)
 sudoku.solve()
+
+end = time.perf_counter()
+print("time:", (end - start))
 
 sudoku.print()
 print(sudoku.correct())

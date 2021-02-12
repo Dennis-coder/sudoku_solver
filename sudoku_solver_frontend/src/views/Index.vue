@@ -1,8 +1,7 @@
 <template>
-  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@300&display=swap" rel="stylesheet">
   <div class="main">
     <h3 id="state"></h3>
-    <div id="sudoku"></div>
+    <div id="sudoku" @click.prevent="setActive" @keydown="changeValue"></div>
     <div class="button-div">
       <button id="solve-button" @click.prevent="solve">Solve</button>
       <button id="clear-button" @click.prevent="clearBoard">Clear</button>
@@ -19,6 +18,11 @@
 <script>
 export default {
   name: 'Index',
+  data () {
+    return {
+      curActive: null
+    }
+  },
   mounted () {
     const sudokuDiv = document.querySelector('#sudoku')
     for (let rowIndex = 0; rowIndex < 9; rowIndex++) {
@@ -30,6 +34,7 @@ export default {
         input.setAttribute('maxlength', 1)
         input.setAttribute('row', rowIndex)
         input.setAttribute('column', columnIndex)
+        input.value = ' '
         row.appendChild(input)
       }
       sudokuDiv.appendChild(row)
@@ -40,7 +45,7 @@ export default {
       let sudokuString = ''
       const rows = document.querySelectorAll('.sudoku-row')
       rows.forEach(row => {
-        const inputs = row.querySelectorAll('input')
+        const inputs = row.querySelectorAll('.sudoku-input')
         inputs.forEach(input => {
           sudokuString += input.value !== '' ? input.value : ' '
           sudokuString += ','
@@ -70,12 +75,12 @@ export default {
     setSudoku (rows) {
       const inputRows = document.querySelectorAll('.sudoku-row')
       for (let i = 0; i < 9; i++) {
-        const inputs = inputRows[i].querySelectorAll('input')
+        const inputs = inputRows[i].querySelectorAll('.sudoku-input')
         for (let j = 0; j < 9; j++) {
           if (rows[i][j].toString() === parseInt(rows[i][j]).toString()) {
             inputs[j].value = rows[i][j]
           } else {
-            inputs[j].value = ''
+            inputs[j].value = ' '
           }
         }
       }
@@ -108,6 +113,9 @@ export default {
       const rows = Array(9)
       for (let i = 0; i < 9; i++) {
         rows[i] = Array(9)
+        for (let j = 0; j < 9; j++) {
+          rows[i][j] = ' '
+        }
       }
       this.setSudoku(rows)
     },
@@ -133,6 +141,24 @@ export default {
         this.setState(jsonResponse.state)
       }
       this.setSudoku(jsonResponse.sudoku)
+    },
+
+    setActive (e) {
+      if (e.target.className.includes('sudoku-input')) {
+        if (this.curActive !== null) {
+          this.curActive.classList.toggle('active')
+        }
+        this.curActive = e.target
+        e.target.classList.toggle('active')
+      }
+    },
+
+    changeValue (e) {
+      if (parseInt(e.key) === 0 || isNaN(parseInt(e.key))) {
+        this.curActive.value = ' '
+      } else {
+        this.curActive.value = e.key
+      }
     }
   }
 }
@@ -158,6 +184,11 @@ export default {
     border-style: solid;
     border-width: 2px;
 
+    .sudoku-row {
+      display: flex;
+      flex-direction: row;
+    }
+
     .sudoku-input {
       width: 3rem;
       height: 3rem;
@@ -166,6 +197,8 @@ export default {
       border-top: none;
       text-align: center;
       font-size: 2rem;
+      caret-color: transparent;
+      cursor: default;
     }
 
     .sudoku-input:nth-of-type(9) {
@@ -234,6 +267,9 @@ body{
     .sudoku-input {
       border-color: rgb(50, 50, 50);
       background: rgb(250, 250, 250);
+      &.active {
+        background: rgb(220, 220, 255);
+      }
     }
   }
   .button-div {
@@ -263,6 +299,9 @@ body.dark-theme{
     .sudoku-input {
       border-color: rgb(150, 150, 150);
       background: rgb(50, 50, 50);
+      &.active {
+        background: rgb(20, 20, 100);
+      }
     }
   }
   .button-div {
